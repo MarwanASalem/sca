@@ -1,0 +1,55 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7.11
+    container_name: mysql_container
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=sca
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    restart: always
+
+  redis:
+    image: 'redis:alpine'
+    container_name: jobs_queue
+    ports:
+      - '6379:6379'
+    restart: always
+
+  app:
+    container_name: sca_rails
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/myapp
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - redis
+    links:
+      - redis
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:create db:migrate db:seed && bundle exec rails s -b '0.0.0.0'"
+    volumes: 
+      - ".:/app"
+    environment:
+      - REDIS_URL=redis://redis
+    restart: always
+
+  sidekiq:
+    build: .
+    container_name: sca_sidekiq
+    depends_on:
+      - db
+      - redis
+      - app
+    command: bundle exec sidekiq
+    environment:
+      - REDIS_URL=redis://redis
+    restart: always
