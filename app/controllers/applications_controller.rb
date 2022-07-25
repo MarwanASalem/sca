@@ -14,6 +14,7 @@ class ApplicationsController < ApplicationController
         app = Application.new(create_params)
         app.token = SecureRandom.uuid
         if app.save!
+            Message.import(force: true) if app.id == 1
             render :json => {
                 success: true,
                 data: {

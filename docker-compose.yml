@@ -1,5 +1,16 @@
 version: '3'
 services:
+
+  elasticsearch:
+    image: elasticsearch:7.17.5
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+
+
   db:
     image: mysql:5.7.11
     container_name: mysql_container
@@ -33,6 +44,7 @@ services:
     depends_on:
       - db
       - redis
+      - elasticsearch
     links:
       - redis
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:create db:migrate db:seed && bundle exec rails s -b '0.0.0.0'"

@@ -7,6 +7,6 @@ WORKDIR /app
 ADD Gemfile /app/Gemfile
 ADD Gemfile.lock /app/Gemfile.lock
 RUN gem install bundler:2.3.18
+RUN gem update --system 3.2.3
 RUN bundle install
 ADD . /app
-

@@ -9,7 +9,7 @@ class PersistChatService
 		chat = @app.chats.new
       	chat.chat_number = @chats_count
     	if chat.save!
-			puts chat
+			puts chat.to_json
 		else      
 			@app.update(chats_count: @app.chats.count)
     	end
